@@ -34,20 +34,23 @@ class HMM:
         self.emissions_prob = emission_prob
         # initial transition state
         self.s = [0.33, 0.33, 0.33]
+        self.transition_prob = [[self.p, self.p_1/2, self.p_1/2],
+                                [self.p_1/2, self.p, self.p_1/2], [self.p_1/2, self.p_1/2, self.p]]
         self.path = []
 
     def print(self):
-        print(f'transition probability:- \n current Dice:- {round(self.p,4)}, \n Other Dices:- {round(self.p_1/2,4)}' )
+        print(
+            f'transition probability:- \n current Dice:- {round(self.p,4)}, \n Other Dices:- {round(self.p_1/2,4)}')
 
         print(f'emission probabilities:- {self.emissions_prob}')
 
-        print(f'initial state:- {self.s}')
-        
+        print(f'transition probability:- {self.transition_prob}')
 
     def run(self, obs, prev_d1_prob, prev_d2_prob, prev_d3_prob):
         # recursion base case when observation array is empty
         if not obs:
-            print(f'final D1 prob: {prev_d1_prob} \nfinal D2 prob: {prev_d2_prob} \nfinal D3 prob: {prev_d3_prob}')
+            print(
+                f'final D1 prob: {prev_d1_prob} \nfinal D2 prob: {prev_d2_prob} \nfinal D3 prob: {prev_d3_prob}')
             return
         elem = int(obs[0])
         prob_1 = None
@@ -60,23 +63,29 @@ class HMM:
             prob_2 = self.emissions_prob[1][elem - 1] * self.s[1]
             prob_3 = self.emissions_prob[2][elem - 1] * self.s[2]
         else:
-            prob_1 = max(prev_d1_prob * self.emissions_prob[0][elem - 1] * self.s[0],
+            prob_1 = max(prev_d1_prob * self.emissions_prob[0][elem - 1] * self.transition_prob[0][0],
                          prev_d2_prob *
-                         self.emissions_prob[0][elem - 1] * self.s[1],
+                         self.emissions_prob[0][elem - 1] *
+                         self.transition_prob[1][0],
                          prev_d3_prob *
-                         self.emissions_prob[0][elem - 1] * self.s[2]
+                         self.emissions_prob[0][elem - 1] *
+                         self.transition_prob[2][0],
                          )
-            prob_2 = max(prev_d1_prob * self.emissions_prob[1][elem - 1] * self.s[0],
+            prob_2 = max(prev_d1_prob * self.emissions_prob[1][elem - 1] * self.transition_prob[0][1],
                          prev_d2_prob *
-                         self.emissions_prob[1][elem - 1] * self.s[1],
+                         self.emissions_prob[1][elem - 1] *
+                         self.transition_prob[1][1],
                          prev_d3_prob *
-                         self.emissions_prob[1][elem - 1] * self.s[2]
+                         self.emissions_prob[1][elem - 1] *
+                         self.transition_prob[2][1],
                          )
-            prob_3 = max(prev_d1_prob * self.emissions_prob[2][elem - 1] * self.s[0],
+            prob_3 = max(prev_d1_prob * self.emissions_prob[2][elem - 1] * self.transition_prob[0][2],
                          prev_d2_prob *
-                         self.emissions_prob[2][elem - 1] * self.s[1],
+                         self.emissions_prob[2][elem - 1] *
+                         self.transition_prob[1][2],
                          prev_d3_prob *
-                         self.emissions_prob[2][elem - 1] * self.s[2]
+                         self.emissions_prob[2][elem - 1] *
+                         self.transition_prob[2][2],
                          )
         self.update_path_state(prob_1, prob_2, prob_3)
         self.run(obs[1:], prob_1, prob_2, prob_3)
